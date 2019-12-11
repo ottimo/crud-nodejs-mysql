@@ -5,6 +5,7 @@ const express = require('express'),
       myConnection = require('express-myconnection');
 
 const app = express();
+const env = process.env.NODE_ENV || 'development';
 
 // importing routes
 const customerRoutes = require('./routes/customer');
@@ -17,7 +18,7 @@ app.set('view engine', 'ejs');
 // middlewares
 app.use(morgan('dev'));
 
-const database = require('./configs/database');
+const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));
 app.use(express.urlencoded({extended: false}));
 
