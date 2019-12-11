@@ -16,13 +16,9 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use(morgan('dev'));
-app.use(myConnection(mysql, {
-  host: 'localhost',
-  user: 'root',
-  password: 'contraseña',
-  port: 3306,
-  database: 'crudnodejsmysql'
-}, 'single'));
+
+const database = require('./configs/database');
+app.use(myConnection(mysql, database, 'single'));
 app.use(express.urlencoded({extended: false}));
 
 // routes
