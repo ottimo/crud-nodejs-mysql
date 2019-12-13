@@ -1,0 +1,18 @@
+---
+- hosts: all
+  vars:
+    http_port: 80
+    max_clients: 200
+  remote_user: root
+  tasks:
+  - name: ensure npm and nodejs is at the latest version
+    package:
+      name:
+        - nodejs
+        - npm
+      state: latest
+  - name: ensure auditjs is at the latest version
+    npm:
+      name: auditjs
+      global: yes
+      state: latest
