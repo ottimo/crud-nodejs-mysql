@@ -16,6 +16,7 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use(morgan('dev'));
+//TODO change user and remove sensitive data from code
 app.use(myConnection(mysql, {
   host: 'localhost',
   user: 'root',

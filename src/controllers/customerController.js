@@ -39,7 +39,7 @@ controller.update = (req, res) => {
   const { id } = req.params;
   const newCustomer = req.body;
   req.getConnection((err, conn) => {
-
+  //TODO souspicious vulns in update there is no check about which params will be updated
   conn.query('UPDATE customer set ? where id = ?', [newCustomer, id], (err, rows) => {
     res.redirect('/');
   });
