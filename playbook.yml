@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: webservers
   vars:
     http_port: 80
     max_clients: 200
@@ -10,9 +10,46 @@
       name:
         - nodejs
         - npm
+        - git
       state: latest
   - name: ensure auditjs is at the latest version
     npm:
       name: auditjs
       global: yes
       state: latest
+  - name: clone master branch 
+    git:
+      repo: 'https://github.com/ottimo/crud-nodejs-mysql.git'
+      dest: /srv/app
+      clone: yes
+      force: yes
+      version: master
+  # - name: verify vulns
+  #   shell: auditjs
+  #   args:
+  #     chdir: /srv/app
+  #   register: known_vulns
+- hosts: db
+  vars:
+    http_port: 80
+    max_clients: 200
+    mysql_user: nodejs
+    mysql_pass: aosbduaob
+    mysql_dbname: crudnodejsmysql
+  remote_user: root
+  tasks:
+  - name: ensure mysql is present
+    package:
+      name:
+        - default-mysql-server
+        - python-mysqldb
+      state: present
+    when: ansible_facts['distribution'] == 'Debian'
+  - mysql_user:
+      name: "{{mysql_user}}"
+      password: "{{mysql_pass}}"
+      state: present
+  - mysql_db:
+      name: "{{mysql_dbname}}"
+      state: import
+      target: /srv/app/database/db.sql
