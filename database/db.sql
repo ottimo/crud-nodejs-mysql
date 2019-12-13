@@ -1,11 +1,11 @@
 -- to create a new database
-CREATE DATABASE crudnodejsmysql;
+CREATE DATABASE if not exists crudnodejsmysql;
 
 -- to use database
 use crudnodejsmysql;
 
 -- creating a new table
-CREATE TABLE customer (
+CREATE TABLE customer if not exists(
   id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   address VARCHAR(100) NOT NULL,
