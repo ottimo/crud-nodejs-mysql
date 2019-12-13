@@ -5,7 +5,7 @@ CREATE DATABASE if not exists crudnodejsmysql;
 use crudnodejsmysql;
 
 -- creating a new table
-CREATE TABLE customer if not exists(
+CREATE TABLE if not exists customer (
   id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   address VARCHAR(100) NOT NULL,
