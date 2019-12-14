@@ -3,6 +3,9 @@
   vars:
     http_port: 80
     max_clients: 200
+    mysql_user: nodejs
+    mysql_pass: aosbduaob
+    mysql_dbname: crudnodejsmysql
   remote_user: root
   tasks:
   - name: ensure npm and nodejs is at the latest version
@@ -30,27 +33,57 @@
       chdir: /srv/app
     changed_when: False
     register: known_vulns
-- hosts: db
-  vars:
-    http_port: 80
-    max_clients: 200
-    mysql_user: nodejs
-    mysql_pass: aosbduaob
-    mysql_dbname: crudnodejsmysql
-  remote_user: root
-  tasks:
-  - name: ensure mysql is present
+  - name: ensure build toolchain is at the latest version
     package:
       name:
-        - default-mysql-server
-        - python-mysqldb
-      state: present
-    when: ansible_facts['distribution'] == 'Debian'
-  - mysql_user:
-      name: "{{mysql_user}}"
-      password: "{{mysql_pass}}"
-      state: present
-  - mysql_db:
-      name: "{{mysql_dbname}}"
-      state: import
-      target: /srv/app/database/db.sql
+        - docker
+        - docker.io
+        - docker-compose
+        - python-docker
+      state: latest
+  - docker_image:
+      name: mysql
+      source: pull
+  - docker_network:
+      name: TestingNet
+  - name: Start db container, connect to network and link
+    docker_container:
+      name: db
+      image: mysql
+      networks:
+        - name: TestingNet
+          aliases:
+            - db
+      networks_cli_compatible: yes
+      env:
+        MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+        MYSQL_USER: "{{mysql_user}}"
+        MYSQL_PASSWORD: "{{mysql_pass}}"
+        MYSQL_DATABASE: "{{mysql_dbname}}"
+  
+
+
+# - hosts: db
+#   vars:
+#     http_port: 80
+#     max_clients: 200
+#     mysql_user: nodejs
+#     mysql_pass: aosbduaob
+#     mysql_dbname: crudnodejsmysql
+#   remote_user: root
+#   tasks:
+#   - name: ensure mysql is present
+#     package:
+#       name:
+#         - default-mysql-server
+#         - python-mysqldb
+#       state: present
+#     when: ansible_facts['distribution'] == 'Debian'
+#   - mysql_user:
+#       name: "{{mysql_user}}"
+#       password: "{{mysql_pass}}"
+#       state: present
+#   - mysql_db:
+#       name: "{{mysql_dbname}}"
+#       state: import
+#       target: /srv/app/database/db.sql
