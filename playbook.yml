@@ -1,5 +1,5 @@
 ---
-- hosts: webservers
+- hosts: build
   vars:
     http_port: 80
     max_clients: 200
@@ -25,9 +25,10 @@
       force: yes
       version: master
   - name: verify vulns
-    shell: auditjs
+    shell: "auditjs -q"
     args:
       chdir: /srv/app
+    changed_when: False
     register: known_vulns
 - hosts: db
   vars:
