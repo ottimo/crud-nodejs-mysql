@@ -24,11 +24,11 @@
       clone: yes
       force: yes
       version: master
-  # - name: verify vulns
-  #   shell: auditjs
-  #   args:
-  #     chdir: /srv/app
-  #   register: known_vulns
+  - name: verify vulns
+    shell: auditjs
+    args:
+      chdir: /srv/app
+    register: known_vulns
 - hosts: db
   vars:
     http_port: 80
