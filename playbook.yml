@@ -20,6 +20,11 @@
       name: auditjs
       global: yes
       state: latest
+
+  - name: ensure nodejsscan is at the latest version
+    pip:
+      name: nodejsscan
+      state: latest
   - name: clone master branch 
     git:
       repo: 'https://github.com/ottimo/crud-nodejs-mysql.git'
@@ -60,7 +65,42 @@
         MYSQL_USER: "{{mysql_user}}"
         MYSQL_PASSWORD: "{{mysql_pass}}"
         MYSQL_DATABASE: "{{mysql_dbname}}"
-  
+  - docker_image:
+      name: web
+      source: build
+      tag: latest
+      build:
+        path: /srv/app
+      push: no
+  - docker_container:
+      name: web
+      image: web
+      networks:
+        - name: TestingNet
+          aliases:
+            - web
+      env:
+        NODE_ENV: "production"
+        DATABASE_HOST: "db"
+        DATABASE_USERNAME: "{{mysql_user}}"
+        DATABASE_PASSWORD: "{{mysql_pass}}"
+        DATABASE_NAME: "{{mysql_dbname}}"
+        DATABASE_PORT: 3306
+  - docker_image:
+      name: owasp/zap2docker-stable
+      source: pull
+  - docker_container:
+      name: zap
+      image: owasp/zap2docker-stable
+      networks:
+        - name: TestingNet
+      command: zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://web
+  - docker_container:
+      name: zap
+      image: owa  sp/zap2docker-stable
+      networks:
+        - name: TestingNet
+      command: zap-baseline.py -t http://web
 
 
 # - hosts: db

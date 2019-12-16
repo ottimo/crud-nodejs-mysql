@@ -2,6 +2,7 @@ const express = require('express'),
       path = require('path'),
       morgan = require('morgan'),
       mysql = require('mysql'),
+      helmet = require('helmet'),
       myConnection = require('express-myconnection');
 
 const app = express();
@@ -17,6 +18,7 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use(morgan('dev'));
+app.use(helmet());
 
 const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));
