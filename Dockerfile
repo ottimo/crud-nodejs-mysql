@@ -2,6 +2,7 @@ FROM node:10
 
 # Create app directory
 WORKDIR /usr/src/app
+ENV NODE_ENV=production
 
 COPY package*.json ./
 
