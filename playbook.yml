@@ -14,6 +14,9 @@
         - nodejs
         - npm
         - git
+        - python-pip
+        - python-dev
+        - python-setuptools
       state: latest
   - name: ensure auditjs is at the latest version
     npm:
@@ -33,11 +36,15 @@
       force: yes
       version: master
   - name: verify vulns
-    shell: "auditjs -q"
+    shell: "NODE_ENV=production auditjs -q"
     args:
       chdir: /srv/app
     changed_when: False
     register: known_vulns
+  - name: static code analysis
+    shell: "nodejsscan -d ./src/ -o output.json"
+    args:
+      chdir: /srv/app
   - name: ensure build toolchain is at the latest version
     package:
       name:
@@ -47,24 +54,32 @@
         - python-docker
       state: latest
   - docker_image:
-      name: mysql
+      name: mysql:5
       source: pull
   - docker_network:
       name: TestingNet
   - name: Start db container, connect to network and link
     docker_container:
       name: db
-      image: mysql
+      image: mysql:5
       networks:
         - name: TestingNet
           aliases:
             - db
+      volumes:
+        - /srv/app/database/db.sql:/tmp/db.sql:ro
       networks_cli_compatible: yes
       env:
-        MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+        MYSQL_ROOT_PASSWORD: "{{mysql_pass}}"
         MYSQL_USER: "{{mysql_user}}"
         MYSQL_PASSWORD: "{{mysql_pass}}"
         MYSQL_DATABASE: "{{mysql_dbname}}"
+    register: docker_db_build
+  - wait_for:
+      timeout: 10
+    when: docker_db_build.changed
+  - name: init db inside container
+    shell: "docker exec -i db mysql -hlocalhost -uroot -p{{mysql_pass}} < /srv/app/database/db.sql"
   - docker_image:
       name: web
       source: build
@@ -82,25 +97,25 @@
       env:
         NODE_ENV: "production"
         DATABASE_HOST: "db"
-        DATABASE_USERNAME: "{{mysql_user}}"
+        DATABASE_USERNAME: "root"
         DATABASE_PASSWORD: "{{mysql_pass}}"
         DATABASE_NAME: "{{mysql_dbname}}"
-        DATABASE_PORT: 3306
+        DATABASE_PORT: "3306"
   - docker_image:
       name: owasp/zap2docker-stable
       source: pull
   - docker_container:
-      name: zap
+      name: zap-quick
       image: owasp/zap2docker-stable
       networks:
         - name: TestingNet
-      command: zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://web
+      command: zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://web:3000
   - docker_container:
-      name: zap
-      image: owa  sp/zap2docker-stable
+      name: zap-baseline
+      image: owasp/zap2docker-stable
       networks:
         - name: TestingNet
-      command: zap-baseline.py -t http://web
+      command: zap-baseline.py -t http://web:3000
 
 
 # - hosts: db
