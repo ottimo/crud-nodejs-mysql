@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm install --production
 
 # Bundle app source
-COPY src/* .
+COPY src/* ./
 
 EXPOSE 3000
 
