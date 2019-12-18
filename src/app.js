@@ -89,7 +89,7 @@ app.use('/', customerRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const map = sitemap({
-  generate: app
+  generate4: app
 });
 
 app.get('/sitemap.xml', function(req, res) { // send XML map
