@@ -7,7 +7,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       uuidv4 = require('uuid/v4'),
-      sitemap = require('express-sitemap'),
+      sitemap = require('express-sitemap')(),
       myConnection = require('express-myconnection');
 
 const app = express();
