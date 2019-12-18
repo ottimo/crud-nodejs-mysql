@@ -104,15 +104,19 @@
   - docker_image:
       name: owasp/zap2docker-stable
       source: pull
-  - docker_container:
+  - name: zap quick scan
+    docker_container:
       name: zap-quick
       image: owasp/zap2docker-stable
+      detach: no
       networks:
         - name: TestingNet
       command: zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://web:3000
-  - docker_container:
+  - name: zap basline scan
+    docker_container:
       name: zap-baseline
       image: owasp/zap2docker-stable
+      detach: no
       networks:
         - name: TestingNet
       command: zap-baseline.py -t http://web:3000

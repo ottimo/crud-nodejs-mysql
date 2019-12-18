@@ -19,6 +19,12 @@ app.set('view engine', 'ejs');
 // middlewares
 app.use(morgan('dev'));
 app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", 'bootswatch.com']
+  }
+}))
 
 const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));
