@@ -24,7 +24,7 @@ app.use(helmet.contentSecurityPolicy({
     defaultSrc: ["'self'"],
     styleSrc: ["'self'", 'bootswatch.com']
   }
-}))
+}));
 
 const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));
