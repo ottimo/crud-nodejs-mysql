@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "csurf": "^1.10.0",
     "ejs": "^2.5.8",
     "express": "^4.16.3",
     "express-myconnection": "^1.0.4",
