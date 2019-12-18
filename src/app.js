@@ -7,6 +7,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       uuidv4 = require('uuid/v4'),
+      sitemap = require('express-sitemap'),
       myConnection = require('express-myconnection');
 
 const app = express();
@@ -86,6 +87,10 @@ app.use('/', customerRoutes);
 
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+sitemap.generate(app);
+
+sitemap.XMLtoFile(); 
 
 // starting the server
 app.listen(app.get('port'), () => {

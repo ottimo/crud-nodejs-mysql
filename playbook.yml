@@ -124,6 +124,11 @@
       networks:
         - name: TestingNet
       command: zap-baseline.py -t http://web:3000
+
+  - docker_image:
+      name: ilyaglow/sqlmap
+      source: pull
+      
 #### Correct build process #####
 
 # start to deploy
