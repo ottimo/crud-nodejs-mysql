@@ -6,6 +6,7 @@ const express = require('express'),
       csrf = require('csurf'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
+      uuidv4 = require('uuid/v4'),
       myConnection = require('express-myconnection');
 
 const app = express();
@@ -22,13 +23,44 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use(morgan('dev'));
+
+// Helmet
+app.use(function (req, res, next) {
+  res.locals.nonce = uuidv4()
+  next()
+})
+
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
-    styleSrc: ["'self'", 'bootswatch.com']
-  }
+    styleSrc: ["'self'", 'bootswatch.com'],
+    scriptSrc: [
+      "'self'", 
+      (req, res) => `'nonce-${res.locals.nonce}'`,
+      "'unsafe-inline'"
+    ],
+    sandbox: ['allow-forms', 'allow-scripts'],
+    reportUri: '/report-violation',
+    objectSrc: ["'none'"],
+    upgradeInsecureRequests: true,
+    workerSrc: false  // This is not set.
+  },
+  browserSniff: false, // disable to to use with CDN
 }));
+app.use(bodyParser.json({
+  type: ['json', 'application/csp-report']
+}))
+
+app.post('/report-violation', (req, res) => {
+  if (req.body) {
+    console.log('CSP Violation: ', req.body)
+  } else {
+    console.log('CSP Violation: No data received!')
+  }
+
+  res.status(204).end()
+})
 
 //CSRF protection
 app.use(bodyParser.urlencoded({ extended: false }))
