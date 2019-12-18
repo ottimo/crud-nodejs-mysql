@@ -87,9 +87,13 @@
       build:
         path: /srv/app
       push: no
+      pull: no
+      state: present
+      force_source: yes
   - docker_container:
       name: web
-      image: web
+      image: web:latest
+      networks_cli_compatible: yes
       networks:
         - name: TestingNet
           aliases:

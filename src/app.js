@@ -18,7 +18,7 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use(morgan('dev'));
-
+app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
