@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "cookie-parser": "^1.4.4",
     "csurf": "^1.10.0",
     "ejs": "^2.5.8",
     "express": "^4.16.3",
