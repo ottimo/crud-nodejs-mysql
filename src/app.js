@@ -28,6 +28,7 @@ app.use(morgan('dev'));
 var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 app.use(session({
   name: 'session',
+  secret: process.env.SESSION_SECRET,
   cookie: {
     secure: true,
     httpOnly: true,
