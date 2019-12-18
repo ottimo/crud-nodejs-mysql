@@ -79,7 +79,11 @@ app.post('/report-violation', (req, res) => {
 //CSRF protection
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(csrf({ cookie: true }))
+app.use(csrf({ cookie: false }))
+app.use(function(req, res, next) {
+  res.locals._csrf = req.csrfToken();
+  next();
+});
 
 // CSRF error handler
 app.use(function (err, req, res, next) {
