@@ -88,15 +88,18 @@ app.use('/', customerRoutes);
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-sitemap.generate4(app , customerRoutes);
 
 app.get('/sitemap.xml', function(req, res) { // send XML map
 
   sitemap.XMLtoWeb(res);
-}).get('/robots.txt', function(req, res) { // send TXT map
+});
+app.get('/robots.txt', function(req, res) { // send TXT map
 
   sitemap.TXTtoWeb(res);
 });
+
+sitemap.generate(app);
+
 
 // starting the server
 app.listen(app.get('port'), () => {
