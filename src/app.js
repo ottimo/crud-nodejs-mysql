@@ -7,6 +7,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       uuidv4 = require('uuid/v4'),
+      session = require('express-session'),
       myConnection = require('express-myconnection');
 
 const app = express();
@@ -24,6 +25,17 @@ app.set('view engine', 'ejs');
 // middlewares
 app.use(morgan('dev'));
 
+var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+app.use(session({
+  name: 'session',
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    path: '/',
+    expires: expiryDate
+  }
+}))
+
 // Helmet
 app.use(function (req, res, next) {
   res.locals.nonce = uuidv4()
@@ -31,6 +43,7 @@ app.use(function (req, res, next) {
 })
 
 app.use(helmet());
+app.use(helmet.noCache())
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
@@ -75,6 +88,7 @@ app.use(function (err, req, res, next) {
   res.status(403)
   res.send('form tampered with')
 })
+
 
 const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));

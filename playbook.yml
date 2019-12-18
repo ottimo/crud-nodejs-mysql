@@ -123,7 +123,7 @@
       detach: no
       networks:
         - name: TestingNet
-      command: zap-baseline.py -t http://web:3000
+      command: zap-baseline.py -t http://web:3000/
       
 #### Correct build process #####
 
