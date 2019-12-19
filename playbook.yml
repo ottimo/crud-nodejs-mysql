@@ -82,7 +82,8 @@
     when: docker_db_build.changed
   - name: init db inside container
     shell: "docker exec -i db mysql -hlocalhost -uroot -p{{mysql_pass}} < /srv/app/database/db.sql"
-  - docker_image:
+  - name: build docker image for web container
+    docker_image:
       name: web
       source: build
       tag: latest
@@ -95,7 +96,6 @@
       name: check_web
       image: web:latest
       detach: no
-      recrate: yes
       command: npm-check -d
   - docker_container:
       name: web
