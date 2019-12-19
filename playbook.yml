@@ -94,12 +94,13 @@
       force_source: yes
   - docker_container:
       name: check_web_container
-      image: web:latest
-      detach: no
-      command: npm-check -p
+      state: absent
   - docker_container:
       name: check_web_container
-      state: absent
+      image: web:latest
+      detach: no
+      command: npm-check -p --skip-unused
+
   - docker_container:
       name: web
       image: web:latest
