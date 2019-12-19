@@ -8,7 +8,7 @@
     mysql_dbname: crudnodejsmysql
   remote_user: root
   tasks:
-  - name: ensure npm and nodejs is at the latest version
+  - name: ensure base tools are at the latest version
     package:
       name:
         - nodejs
@@ -18,12 +18,14 @@
         - python-dev
         - python-setuptools
       state: latest
-  - name: ensure auditjs is at the latest version
+  - name: ensure debs check tools are at the latest version
     npm:
-      name: auditjs
+      name: "{{item}}"
       global: yes
       state: latest
-
+    with_items:
+      - auditjs
+    
   - name: ensure nodejsscan is at the latest version
     pip:
       name: nodejsscan
@@ -35,7 +37,7 @@
       clone: yes
       force: yes
       version: master
-  - name: verify vulns
+  - name: check dependencies
     shell: "NODE_ENV=production auditjs -q"
     args:
       chdir: /srv/app
@@ -87,9 +89,14 @@
       build:
         path: /srv/app
       push: no
-      pull: no
       state: present
       force_source: yes
+  - docker_container:
+      name: check_web
+      image: web:latest
+      detach: no
+      recrate: yes
+      command: npm-check -d
   - docker_container:
       name: web
       image: web:latest
@@ -107,16 +114,17 @@
         DATABASE_PORT: "3306"
         SESSION_SECRET: "oaisdnoian98aen98aef98n"
   - docker_image:
-      name: owasp/zap2docker-stable
+      name: owasp/zap2docker-weekly
       source: pull
   - name: zap basline scan
     docker_container:
       name: zap-baseline
-      image: owasp/zap2docker-stable
+      image: owasp/zap2docker-weekly
       detach: no
+      networks_cli_compatible: yes
       networks:
         - name: TestingNet
-      command: zap-baseline.py -t http://web:3000/ -s
+      command: zap-baseline.py -t http://web:3000/ -s -I
       
 #### Correct build process #####
 
