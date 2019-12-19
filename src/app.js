@@ -25,6 +25,7 @@ app.set('view engine', 'ejs');
 // middlewares
 app.use(morgan('dev'));
 
+// session with security configuration
 var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 app.use(session({
   name: 'session',
@@ -37,14 +38,17 @@ app.use(session({
   }
 }))
 
-// Helmet
+// Helmet to add security headers
+app.use(helmet());
+
+// disable cache
+app.use(helmet.noCache())
+
+// CSP with nonce
 app.use(function (req, res, next) {
   res.locals.nonce = uuidv4()
   next()
 })
-
-app.use(helmet());
-app.use(helmet.noCache())
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
@@ -76,14 +80,10 @@ app.post('/report-violation', (req, res) => {
   res.status(204).end()
 })
 
-//CSRF protection
+//CSRF protection with cookie
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(csrf({ cookie: true }))
-// app.use(function(req, res, next) {
-//   res.locals._csrf = req.csrfToken();
-//   next();
-// });
 
 // CSRF error handler
 app.use(function (err, req, res, next) {
@@ -94,7 +94,7 @@ app.use(function (err, req, res, next) {
   res.send('form tampered with')
 })
 
-
+// Database configuration with environment
 const database = require('./configs/database')[env];
 app.use(myConnection(mysql, database, 'single'));
 

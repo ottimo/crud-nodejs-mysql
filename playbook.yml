@@ -25,7 +25,7 @@
       state: latest
     with_items:
       - auditjs
-    
+
   - name: ensure nodejsscan is at the latest version
     pip:
       name: nodejsscan
@@ -47,6 +47,22 @@
     shell: "nodejsscan -d ./src/ -o output.json"
     args:
       chdir: /srv/app
+  - name: read static code analysis results
+    slurp:
+      src: '/srv/app/output.json'
+    register: output_json
+  - debug:
+      msg: "{{output_json['content'] | b64decode}}"
+  - set_fact:
+      nodejsscan_output: "{{ output_json['content'] | b64decode | from_json }}"
+  - debug: 
+      msg: "{{nodejsscan_output}}"
+  - fail:
+      msg: "ERROR: Some vulns found: {{nodejsscan_output.vuln_count}}"
+    when: nodejsscan_output.vuln_count | length >0
+  - fail:
+      msg: "ERROR: Some vulns found: {{nodejsscan_output.sec_issues}}"
+    when: nodejsscan_output.sec_issues | length >0
   - name: ensure build toolchain is at the latest version
     package:
       name:
